@@ -5,8 +5,17 @@
 </head>
 <body>
     <nav>
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
         <a href="{% url 'writeup_list' %}"><span style="opacity:0.6;">/</span>cause</a>
         {% if user.is_authenticated %}
+            <span>{{ user.profile.coins }} coins</span>
             <a href="{% url 'dashboard' %}">Dashboard</a>
             <form method="post" action="{% url 'logout' %}" style="display:inline;">
                 {% csrf_token %}

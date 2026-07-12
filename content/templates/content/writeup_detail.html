@@ -5,7 +5,16 @@
     <p>By {{ writeup.author.username }} in {{ writeup.category }}</p>
 
     {% if writeup.is_premium %}
-        <p>This is a premium writeup - {{ writeup.coin_cost }} coins to unlock</p>
+        {% if unlocked %}
+            <p>{{ writeup.body }}</p>
+        {% else %}
+            <p>This is a premium writeup - {{ writeup.coin_cost }} coins to unlock</p>
+            <p>Your balance: {{ request.user.profile.coins }} coins</p>
+            <form method="post" action="{% url 'writeup_unlock' writeup.pk %}">
+                {% csrf_token %}
+                <button type="submit">Unlock for {{ writeup.coin_cost }} coins</button>
+            </form>
+        {% endif %}
     {% else %}
         <p>{{ writeup.body }}</p>
     {% endif %}

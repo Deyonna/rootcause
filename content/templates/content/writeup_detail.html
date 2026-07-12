@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ writeup.title }} - /cause</title>
+</head>
+<body>
+    <a href="{% url 'writeup_list' %}">&larr; Back to all writeups</a>
+
+    <h1>{{ writeup.title }}</h1>
+    <p>By {{ writeup.author.username }} in {{ writeup.category }}</p>
+
+    {% if writeup.is_premium %}
+        <p>This is a premium writeup - {{ writeup.coin_cost }} coins to unlock</p>
+    {% else %}
+        <p>{{ writeup.body }}</p>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html>
+<head><title>Dashboard - /cause</title></head>
+<body>
+    <h1>Welcome, {{ profile.user.username }}</h1>
+    <p>Coins: {{ profile.coins }}</p>
+    <a href="{% url 'writeup_list' %}">Browse WriteUps</a>
+    <a href="{% url 'logout' %}">Log out</a>
+</body>
+</html>

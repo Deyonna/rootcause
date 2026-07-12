@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>/cause</title>
+</head>
+<body>
+    <h1>/cause</h1>
+
+    {% for w in writeups %}
+        <div>
+            <h3><a href="{% url 'writeup_detail' w.pk %}">{{ w.title }}</a></h3>
+            <p>By {{ w.author.username }} in {{ w.category }}</p>
+            {% if w.is_premium %}
+                <p>Premium - {{ w.coin_cost }} coins</p>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No writeups yet.</p>
+    {% endfor %}
+</body>
+</html>

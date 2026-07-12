@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ writeup.title }} - /cause</title>
-</head>
-<body>
-    <a href="{% url 'writeup_list' %}">&larr; Back to all writeups</a>
-
+{% extends 'base.html' %}
+{% block title %}{{ writeup.title }} - /cause{% endblock %}
+{% block content %}
     <h1>{{ writeup.title }}</h1>
     <p>By {{ writeup.author.username }} in {{ writeup.category }}</p>
 
@@ -14,5 +9,4 @@
     {% else %}
         <p>{{ writeup.body }}</p>
     {% endif %}
-</body>
-</html>
+{% endblock %}

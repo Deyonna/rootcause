@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Apply to be an Author - /cause{% endblock %}
+{% block content %}
+    <h1>Apply to Become an Author</h1>
+
+    {% if already_applied %}
+        <p>You already have a pending application. Check back soon.</p>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Submit Application</button>
+        </form>
+    {% endif %}
+{% endblock %}

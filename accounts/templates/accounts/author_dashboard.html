@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head><title>Author Dashboard - /cause</title></head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Author Dashboard - /cause{% endblock %}
+{% block content %}
     <h1>Welcome, {{ profile.user.username }} (Author)</h1>
-    <a href="{% url 'writeup_list' %}">Browse WriteUps</a>
-    <a href="{% url 'logout' %}">Log out</a>
-</body>
-</html>
+{% endblock %}

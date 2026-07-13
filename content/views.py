@@ -1,13 +1,46 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import WriteUp, ReadLog, Unlock
+from .models import WriteUp, Category, ReadLog, Unlock
 
 READ_REWARD = 10  # coins earned per free writeup, first read only
 
 def writeup_list(request):
     writeups = WriteUp.objects.all().order_by('-created_at')
-    return render(request, 'content/writeup_list.html', {'writeups': writeups})
+
+    query = request.GET.get('q', '')
+    category_id = request.GET.get('category', '')
+    min_coins = request.GET.get('min_coins', '')
+    max_coins = request.GET.get('max_coins', '')
+    premium_only = request.GET.get('premium_only', '')
+
+    if query:
+        writeups = writeups.filter(title__icontains=query)
+
+    if category_id:
+        writeups = writeups.filter(category_id=category_id)
+
+    if min_coins:
+        writeups = writeups.filter(coin_cost__gte=min_coins)
+
+    if max_coins:
+        writeups = writeups.filter(coin_cost__lte=max_coins)
+
+    if premium_only == 'on':
+        writeups = writeups.filter(is_premium=True)
+
+    categories = Category.objects.all()
+
+    context = {
+        'writeups': writeups,
+        'categories': categories,
+        'query': query,
+        'selected_category': category_id,
+        'min_coins': min_coins,
+        'max_coins': max_coins,
+        'premium_only': premium_only,
+    }
+    return render(request, 'content/writeup_list.html', context)
 
 @login_required
 def writeup_detail(request, pk):

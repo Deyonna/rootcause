@@ -1,15 +1,39 @@
 {% extends 'base.html' %}
 {% block title %}/cause{% endblock %}
 {% block content %}
+    <form method="get">
+        <input type="text" name="q" placeholder="Search by title" value="{{ query }}">
+
+        <select name="category">
+            <option value="">All categories</option>
+            {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+                    {{ cat.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <input type="number" name="min_coins" placeholder="Min coins" value="{{ min_coins }}">
+        <input type="number" name="max_coins" placeholder="Max coins" value="{{ max_coins }}">
+
+        <label>
+            <input type="checkbox" name="premium_only" {% if premium_only == 'on' %}checked{% endif %}>
+            Premium only
+        </label>
+
+        <button type="submit">Search / Filter</button>
+        <a href="{% url 'writeup_list' %}">Clear</a>
+    </form>
+
     {% for w in writeups %}
         <div>
             <h3><a href="{% url 'writeup_detail' w.pk %}">{{ w.title }}</a></h3>
             <p>By {{ w.author.username }} in {{ w.category }}</p>
             {% if w.is_premium %}
-                <p></p>Premium - {{ w.coin_cost }} coins</p>
+                <p>Premium - {{ w.coin_cost }} coins</p>
             {% endif %}
         </div>
     {% empty %}
-        <p>No writeups yet.</p>
+        <p>No writeups match your search.</p>
     {% endfor %}
 {% endblock %}

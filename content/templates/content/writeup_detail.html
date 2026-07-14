@@ -18,4 +18,15 @@
     {% else %}
         <p>{{ writeup.body }}</p>
     {% endif %}
+    {% if recommended %}
+        <h3>You might also like</h3>
+        <ul>
+            {% for r in recommended %}
+                <li>
+                    <a href="{% url 'writeup_detail' r.pk %}">{{ r.title }}</a>
+                    {% if r.is_premium %} 🔒{% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 {% endblock %}

@@ -47,18 +47,20 @@ def writeup_detail(request, pk):
     writeup = get_object_or_404(WriteUp, pk=pk)
     profile = request.user.profile
 
+    recommended = WriteUp.objects.filter(category=writeup.category).exclude(pk=writeup.pk)[:4]
+
     if writeup.is_premium:
         unlocked = Unlock.objects.filter(user=request.user, writeup=writeup).exists()
-        context = {'writeup': writeup, 'unlocked': unlocked}
+        context = {'writeup': writeup, 'unlocked': unlocked, 'recommended': recommended}
         return render(request, 'content/writeup_detail.html', context)
-
+    
     # free writeup: log the read, award coins only the first time
     _, created = ReadLog.objects.get_or_create(user=request.user, writeup=writeup)
     if created:
         profile.coins += READ_REWARD
         profile.save()
 
-    context = {'writeup': writeup}
+    context = {'writeup': writeup, 'recommended': recommended}
     return render(request, 'content/writeup_detail.html', context)
 
 @login_required

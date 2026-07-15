@@ -4,20 +4,45 @@
     <h1>{{ writeup.title }}</h1>
     <p>By {{ writeup.author.username }} in {{ writeup.category }}</p>
 
-    {% if writeup.is_premium %}
-        {% if unlocked %}
-            <p>{{ writeup.body }}</p>
-        {% else %}
-            <p>This is a premium writeup - {{ writeup.coin_cost }} coins to unlock</p>
-            <p>Your balance: {{ request.user.profile.coins }} coins</p>
-            <form method="post" action="{% url 'writeup_unlock' writeup.pk %}">
-                {% csrf_token %}
-                <button type="submit">Unlock for {{ writeup.coin_cost }} coins</button>
-            </form>
-        {% endif %}
+    {% if writeup.is_premium and not unlocked %}
+        <p>This is a premium writeup - {{ writeup.coin_cost }} coins to unlock</p>
+        <p>Your balance: {{ request.user.profile.coins }} coins</p>
+        <form method="post" action="{% url 'writeup_unlock' writeup.pk %}">
+            {% csrf_token %}
+            <button type="submit">Unlock for {{ writeup.coin_cost }} coins</button>
+        </form>
     {% else %}
         <p>{{ writeup.body }}</p>
+
+        <div id="rating-widget" data-writeup-id="{{ writeup.pk }}">
+            <p>Rate this writeup:
+                <span class="star" data-score="1">☆</span>
+                <span class="star" data-score="2">☆</span>
+                <span class="star" data-score="3">☆</span>
+                <span class="star" data-score="4">☆</span>
+                <span class="star" data-score="5">☆</span>
+            </p>
+            <p id="rating-summary">Average: — ({{ writeup.ratings.count }} ratings)</p>
+        </div>
+
+        <h3>Comments</h3>
+        <form method="post" action="{% url 'add_comment' writeup.pk %}">
+            {% csrf_token %}
+            {{ comment_form.as_p }}
+            <button type="submit">Post Comment</button>
+        </form>
+
+        {% for c in comments %}
+            <div>
+                <strong>{{ c.user.username }}</strong>
+                <span> — {{ c.created_at|date:"M d, Y" }}</span>
+                <p>{{ c.body }}</p>
+            </div>
+        {% empty %}
+            <p>No comments yet — be the first.</p>
+        {% endfor %}
     {% endif %}
+
     {% if recommended %}
         <h3>You might also like</h3>
         <ul>
@@ -29,4 +54,31 @@
             {% endfor %}
         </ul>
     {% endif %}
+
+    <script>
+    $(document).ready(function() {
+        $('.star').on('click', function() {
+            const score = $(this).data('score');
+            const writeupId = $('#rating-widget').data('writeup-id');
+
+            $.ajax({
+                url: `/writeup/${writeupId}/rate/`,
+                type: 'POST',
+                data: {
+                    score: score,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    $('#rating-summary').text(`Average: ${response.average} (${response.count} ratings)`);
+                    $('.star').each(function() {
+                        $(this).text($(this).data('score') <= score ? '★' : '☆');
+                    });
+                },
+                error: function() {
+                    alert('Something went wrong submitting your rating.');
+                }
+            });
+        });
+    });
+    </script>
 {% endblock %}

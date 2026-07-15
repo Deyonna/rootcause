@@ -1,7 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import WriteUp, Category, ReadLog, Unlock
+from django.views.decorators.http import require_POST
+from django.db import models
+from .models import WriteUp, Category, ReadLog, Unlock, Rating
+from .forms import CommentForm
 
 READ_REWARD = 10  # coins earned per free writeup, first read only
 
@@ -46,21 +50,27 @@ def writeup_list(request):
 def writeup_detail(request, pk):
     writeup = get_object_or_404(WriteUp, pk=pk)
     profile = request.user.profile
-
     recommended = WriteUp.objects.filter(category=writeup.category).exclude(pk=writeup.pk)[:4]
+    comments = writeup.comments.all()
+    comment_form = CommentForm()
 
     if writeup.is_premium:
         unlocked = Unlock.objects.filter(user=request.user, writeup=writeup).exists()
-        context = {'writeup': writeup, 'unlocked': unlocked, 'recommended': recommended}
+        context = {
+            'writeup': writeup, 'unlocked': unlocked, 'recommended': recommended,
+            'comments': comments, 'comment_form': comment_form,
+        }
         return render(request, 'content/writeup_detail.html', context)
-    
-    # free writeup: log the read, award coins only the first time
+
     _, created = ReadLog.objects.get_or_create(user=request.user, writeup=writeup)
     if created:
         profile.coins += READ_REWARD
         profile.save()
 
-    context = {'writeup': writeup, 'recommended': recommended}
+    context = {
+        'writeup': writeup, 'recommended': recommended,
+        'comments': comments, 'comment_form': comment_form,
+    }
     return render(request, 'content/writeup_detail.html', context)
 
 @login_required
@@ -81,5 +91,41 @@ def writeup_unlock(request, pk):
         else:
             messages.error(request, 'Not enough coins to unlock this.')
         return redirect('writeup_detail', pk=pk)
+
+    return redirect('writeup_detail', pk=pk)
+
+@login_required
+@require_POST
+def rate_writeup(request, pk):
+    writeup = get_object_or_404(WriteUp, pk=pk)
+    score = request.POST.get('score')
+
+    if score not in ['1', '2', '3', '4', '5']:
+        return JsonResponse({'error': 'Invalid score'}, status=400)
+
+    Rating.objects.update_or_create(
+        writeup=writeup, user=request.user,
+        defaults={'score': int(score)}
+    )
+
+    avg = writeup.ratings.aggregate(models.Avg('score'))['score__avg'] or 0
+    count = writeup.ratings.count()
+
+    return JsonResponse({'average': round(avg, 1), 'count': count})
+
+@login_required
+@require_POST
+def add_comment(request, pk):
+    writeup = get_object_or_404(WriteUp, pk=pk)
+
+    if writeup.is_premium and not Unlock.objects.filter(user=request.user, writeup=writeup).exists():
+        return redirect('writeup_detail', pk=pk)
+
+    form = CommentForm(request.POST)
+    if form.is_valid():
+        comment = form.save(commit=False)
+        comment.writeup = writeup
+        comment.user = request.user
+        comment.save()
 
     return redirect('writeup_detail', pk=pk)

@@ -1,7 +1,38 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard - /cause{% endblock %}
 {% block content %}
-    <h1>Welcome, {{ profile.user.username }}</h1>
+    <div style="display:flex; gap:16px; align-items:center;">
+        {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" width="70" height="70" style="border-radius:50%; object-fit:cover;">
+        {% endif %}
+        <div>
+            <h1>Welcome, {{ profile.user.username }}</h1>
+            {% if profile.bio %}<p>{{ profile.bio }}</p>{% endif %}
+        </div>
+    </div>
+
     <p>Coins: {{ profile.coins }}</p>
+    <p>Free writeups read: {{ free_count }}</p>
+    <p>Premium writeups unlocked: {{ unlocked_count }}</p>
+
+    <a href="{% url 'edit_profile' %}">Edit Profile</a>
     <a href="{% url 'apply_author' %}">Apply to become an Author</a>
+
+    <h3>Recently read</h3>
+    <ul>
+        {% for r in recent_reads %}
+            <li><a href="{% url 'writeup_detail' r.writeup.pk %}">{{ r.writeup.title }}</a> — {{ r.timestamp|date:"M d, Y" }}</li>
+        {% empty %}
+            <li>No reads yet.</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Recently unlocked</h3>
+    <ul>
+        {% for u in recent_unlocks %}
+            <li><a href="{% url 'writeup_detail' u.writeup.pk %}">{{ u.writeup.title }}</a> — {{ u.timestamp|date:"M d, Y" }}</li>
+        {% empty %}
+            <li>No unlocks yet.</li>
+        {% endfor %}
+    </ul>
 {% endblock %}

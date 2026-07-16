@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile - /cause{% endblock %}
+{% block content %}
+    <h1>Edit Profile</h1>
+
+    {% if request.user.profile.avatar %}
+        <img src="{{ request.user.profile.avatar.url }}" width="100" height="100" style="border-radius:50%; object-fit:cover;">
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ user_form.as_p }}
+        {{ profile_form.as_p }}
+        <button type="submit">Save Changes</button>
+    </form>
+{% endblock %}

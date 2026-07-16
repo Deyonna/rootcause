@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Subscriptions - /cause{% endblock %}
+{% block content %}
+    <h1>Subscription Plans</h1>
+    <p>Unlock every premium writeup on the site for the duration of your plan.</p>
+
+    {% for plan in plans %}
+        <div>
+            <h3>{{ plan.name }}</h3>
+            <p>{{ plan.duration_days }} days — ${{ plan.price }}</p>
+            <form method="post" action="{% url 'add_subscription_to_cart' plan.pk %}">
+                {% csrf_token %}
+                <label>
+                    <input type="checkbox" name="is_gift" onchange="this.closest('form').querySelector('.gift-email').style.display = this.checked ? 'inline-block' : 'none';">
+                    Buy as a gift
+                </label>
+                <input type="email" name="recipient_email" class="gift-email" placeholder="Recipient's email" style="display:none;">
+                <button type="submit">Add to Cart</button>
+            </form>
+        </div>
+    {% endfor %}
+{% endblock %}

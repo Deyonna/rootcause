@@ -6,6 +6,11 @@ from django.views.decorators.http import require_POST
 from django.db import models
 from .models import WriteUp, Category, ReadLog, Unlock, Rating
 from .forms import CommentForm
+from .utils import has_access
+from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
+from billing.models import SubscriptionPlan, Subscription
 
 READ_REWARD = 10  # coins earned per free writeup, first read only
 
@@ -53,13 +58,11 @@ def writeup_detail(request, pk):
     recommended = WriteUp.objects.filter(category=writeup.category).exclude(pk=writeup.pk)[:4]
     comments = writeup.comments.all()
     comment_form = CommentForm()
+    unlocked = has_access(request.user, writeup)
 
-    if writeup.is_premium:
-        unlocked = Unlock.objects.filter(user=request.user, writeup=writeup).exists()
-        context = {
-            'writeup': writeup, 'unlocked': unlocked, 'recommended': recommended,
-            'comments': comments, 'comment_form': comment_form,
-        }
+    if writeup.is_premium and not unlocked:
+        context = {'writeup': writeup, 'unlocked': unlocked, 'recommended': recommended,
+                   'comments': comments, 'comment_form': comment_form}
         return render(request, 'content/writeup_detail.html', context)
 
     _, created = ReadLog.objects.get_or_create(user=request.user, writeup=writeup)
@@ -67,16 +70,17 @@ def writeup_detail(request, pk):
         profile.coins += READ_REWARD
         profile.save()
 
-    context = {
-        'writeup': writeup, 'recommended': recommended,
-        'comments': comments, 'comment_form': comment_form,
-    }
+    context = {'writeup': writeup, 'unlocked': unlocked, 'recommended': recommended,
+               'comments': comments, 'comment_form': comment_form}
     return render(request, 'content/writeup_detail.html', context)
 
 @login_required
 def writeup_unlock(request, pk):
     writeup = get_object_or_404(WriteUp, pk=pk, is_premium=True)
     profile = request.user.profile
+
+    if has_access(request.user, writeup):
+        return redirect('writeup_detail', pk=pk)
 
     already_unlocked = Unlock.objects.filter(user=request.user, writeup=writeup).exists()
     if already_unlocked:
@@ -98,6 +102,8 @@ def writeup_unlock(request, pk):
 @require_POST
 def rate_writeup(request, pk):
     writeup = get_object_or_404(WriteUp, pk=pk)
+    if not has_access(request.user, writeup):
+        return JsonResponse({'error': 'You must unlock this writeup before rating it'}, status=403)
     score = request.POST.get('score')
 
     if score not in ['1', '2', '3', '4', '5']:
@@ -117,6 +123,8 @@ def rate_writeup(request, pk):
 @require_POST
 def add_comment(request, pk):
     writeup = get_object_or_404(WriteUp, pk=pk)
+    if not has_access(request.user, writeup):
+        return redirect('writeup_detail', pk=pk)
 
     if writeup.is_premium and not Unlock.objects.filter(user=request.user, writeup=writeup).exists():
         return redirect('writeup_detail', pk=pk)
@@ -129,3 +137,128 @@ def add_comment(request, pk):
         comment.save()
 
     return redirect('writeup_detail', pk=pk)
+
+@login_required
+@require_POST
+def add_to_cart(request, pk):
+    writeup = get_object_or_404(WriteUp, pk=pk, is_premium=True)
+    cart = request.session.get('cart', [])
+    if not any(i.get('type') == 'writeup' and i.get('id') == pk for i in cart):
+        cart.append({'type': 'writeup', 'id': pk})
+    request.session['cart'] = cart
+    messages.success(request, f'Added "{writeup.title}" to your cart.')
+    return redirect('writeup_list')
+
+
+@login_required
+@require_POST
+def add_subscription_to_cart(request, plan_id):
+    plan = get_object_or_404(SubscriptionPlan, pk=plan_id)
+    item = {'type': 'subscription', 'plan_id': plan.pk}
+
+    if request.POST.get('is_gift'):
+        recipient_email = request.POST.get('recipient_email', '').strip()
+        if not recipient_email:
+            messages.error(request, 'Enter the recipient\'s email to gift this subscription.')
+            return redirect('subscription_plans')
+        item['is_gift'] = True
+        item['recipient_email'] = recipient_email
+
+    cart = request.session.get('cart', [])
+    cart.append(item)
+    request.session['cart'] = cart
+    messages.success(request, f'Added "{plan.name}" to your cart.')
+    return redirect('subscription_plans')
+
+
+@login_required
+def view_cart(request):
+    cart = request.session.get('cart', [])
+    display_items = []
+    coin_total = 0
+    money_total = 0
+
+    for idx, item in enumerate(cart):
+        if item['type'] == 'writeup':
+            w = WriteUp.objects.filter(pk=item['id']).first()
+            if w:
+                display_items.append({'index': idx, 'label': w.title, 'cost': f"{w.coin_cost} coins"})
+                coin_total += w.coin_cost
+        else:
+            plan = SubscriptionPlan.objects.filter(pk=item['plan_id']).first()
+            if plan:
+                label = plan.name
+                if item.get('is_gift'):
+                    label += f" (gift for {item.get('recipient_email')})"
+                display_items.append({'index': idx, 'label': label, 'cost': f"${plan.price}"})
+                money_total += plan.price
+
+    return render(request, 'content/cart.html', {
+        'items': display_items, 'coin_total': coin_total, 'money_total': money_total,
+    })
+
+
+@login_required
+@require_POST
+def remove_from_cart(request, index):
+    cart = request.session.get('cart', [])
+    if 0 <= index < len(cart):
+        cart.pop(index)
+    request.session['cart'] = cart
+    return redirect('view_cart')
+
+
+@login_required
+@require_POST
+def checkout(request):
+    cart = request.session.get('cart', [])
+    profile = request.user.profile
+    unlocked_titles, skipped_titles = [], []
+
+    for item in cart:
+        if item['type'] == 'writeup':
+            writeup = WriteUp.objects.filter(pk=item['id']).first()
+            if not writeup or has_access(request.user, writeup):
+                continue
+            if profile.coins >= writeup.coin_cost:
+                profile.coins -= writeup.coin_cost
+                profile.save()
+                Unlock.objects.create(user=request.user, writeup=writeup)
+                unlocked_titles.append(writeup.title)
+            else:
+                skipped_titles.append(writeup.title)
+
+        else:
+            plan = SubscriptionPlan.objects.filter(pk=item['plan_id']).first()
+            if not plan:
+                continue
+
+            is_gift = item.get('is_gift')
+            if is_gift:
+                recipient = User.objects.filter(email__iexact=item.get('recipient_email')).first()
+                if not recipient:
+                    skipped_titles.append(f"{plan.name} (no account with that email)")
+                    continue
+            else:
+                recipient = request.user
+
+            # simulated payment: no real charge, no coin deduction — just "goes through"
+            Subscription.objects.create(
+                user=recipient,
+                plan=plan,
+                expires_at=timezone.now() + timedelta(days=plan.duration_days),
+                gifted_by=request.user if is_gift else None,
+            )
+            unlocked_titles.append(f"{plan.name} (${plan.price})")
+
+    request.session['cart'] = []
+
+    if unlocked_titles:
+        messages.success(request, f'Purchased: {", ".join(unlocked_titles)}')
+    if skipped_titles:
+        messages.error(request, f'Could not complete: {", ".join(skipped_titles)}')
+    return redirect('dashboard')
+
+def subscription_plans(request):
+    plans = SubscriptionPlan.objects.all()
+    return render(request, 'content/subscriptions.html', {'plans': plans})

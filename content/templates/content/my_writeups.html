@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}My WriteUps - /cause{% endblock %}
+{% block content %}
+    <h1>My WriteUps</h1>
+    <a href="{% url 'writeup_create' %}">+ New WriteUp</a>
+
+    {% for w in writeups %}
+        <div>
+            <h3><a href="{% url 'writeup_detail' w.pk %}">{{ w.title }}</a></h3>
+            <p>{% if w.is_premium %}🔒 Premium ({{ w.coin_cost }} coins){% else %}Free{% endif %} — {{ w.category }}</p>
+            <a href="{% url 'writeup_edit' w.pk %}">Edit</a>
+            <form method="post" action="{% url 'writeup_delete' w.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('Delete this writeup?')">Delete</button>
+            </form>
+        </div>
+    {% empty %}
+        <p>You haven't written anything yet.</p>
+    {% endfor %}
+{% endblock %}

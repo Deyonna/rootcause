@@ -10,7 +10,7 @@
             {% if profile.bio %}<p>{{ profile.bio }}</p>{% endif %}
         </div>
     </div>
-
+    <a href="{% url 'my_writeups' %}">My WriteUps</a>
     <p>Coins: {{ profile.coins }}</p>
     <p>Free writeups read: {{ free_count }}</p>
     <p>Premium writeups unlocked: {{ unlocked_count }}</p>

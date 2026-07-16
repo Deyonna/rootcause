@@ -5,12 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.db import models
 from .models import WriteUp, Category, ReadLog, Unlock, Rating
-from .forms import CommentForm
+from .forms import CommentForm, CommentForm, WriteUpForm
 from .utils import has_access
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import timedelta
 from billing.models import SubscriptionPlan, Subscription
+from .decorators import author_required
 
 READ_REWARD = 10  # coins earned per free writeup, first read only
 
@@ -262,3 +263,46 @@ def checkout(request):
 def subscription_plans(request):
     plans = SubscriptionPlan.objects.all()
     return render(request, 'content/subscriptions.html', {'plans': plans})
+
+@author_required
+def my_writeups(request):
+    writeups = WriteUp.objects.filter(author=request.user).order_by('-created_at')
+    return render(request, 'content/my_writeups.html', {'writeups': writeups})
+
+
+@author_required
+def writeup_create(request):
+    if request.method == 'POST':
+        form = WriteUpForm(request.POST)
+        if form.is_valid():
+            writeup = form.save(commit=False)
+            writeup.author = request.user
+            writeup.save()
+            messages.success(request, f'Published "{writeup.title}".')
+            return redirect('my_writeups')
+    else:
+        form = WriteUpForm()
+    return render(request, 'content/writeup_form.html', {'form': form})
+
+
+@author_required
+def writeup_edit(request, pk):
+    writeup = get_object_or_404(WriteUp, pk=pk, author=request.user)
+    if request.method == 'POST':
+        form = WriteUpForm(request.POST, instance=writeup)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Updated "{writeup.title}".')
+            return redirect('my_writeups')
+    else:
+        form = WriteUpForm(instance=writeup)
+    return render(request, 'content/writeup_form.html', {'form': form})
+
+
+@author_required
+def writeup_delete(request, pk):
+    writeup = get_object_or_404(WriteUp, pk=pk, author=request.user)
+    if request.method == 'POST':
+        writeup.delete()
+        messages.success(request, f'Deleted "{writeup.title}".')
+    return redirect('my_writeups')

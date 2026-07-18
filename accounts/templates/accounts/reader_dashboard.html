@@ -1,38 +1,66 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard - /cause{% endblock %}
 {% block content %}
-    <div style="display:flex; gap:16px; align-items:center;">
+<div class="card p-4 mb-4">
+    <div class="d-flex gap-3 align-items-center flex-wrap">
         {% if profile.avatar %}
-            <img src="{{ profile.avatar.url }}" width="70" height="70" style="border-radius:50%; object-fit:cover;">
+            <img src="{{ profile.avatar.url }}" width="70" height="70" class="rounded-circle" style="object-fit:cover;" alt="{{ profile.user.username }}'s avatar">
         {% endif %}
         <div>
-            <h1>Welcome, {{ profile.user.username }}</h1>
-            {% if profile.bio %}<p>{{ profile.bio }}</p>{% endif %}
+            <h1 class="h3 mb-1">Welcome, {{ profile.user.username }}
+                {% if profile.user.is_superuser %}
+                    <span class="badge badge-premium">Admin</span>
+                {% endif %}
+            </h1>
+            {% if profile.bio %}<p class="text-muted mb-0">{{ profile.bio }}</p>{% endif %}
         </div>
     </div>
 
-    <p>Coins: {{ profile.coins }}</p>
-    <p>Free writeups read: {{ free_count }}</p>
-    <p>Premium writeups unlocked: {{ unlocked_count }}</p>
+    <div class="row mt-3 g-2">
+        <div class="col-auto"><span class="badge badge-free">Coins: {{ profile.coins }}</span></div>
+        <div class="col-auto"><span class="badge badge-free">Free reads: {{ free_count }}</span></div>
+        <div class="col-auto"><span class="badge badge-free">Unlocked: {{ unlocked_count }}</span></div>
+    </div>
 
-    <a href="{% url 'edit_profile' %}">Edit Profile</a>
-    <a href="{% url 'apply_author' %}">Apply to become an Author</a>
+    <div class="mt-3 d-flex gap-3 flex-wrap">
+        <a href="{% url 'edit_profile' %}" class="btn btn-sm btn-outline-light">Edit Profile</a>
+        <a href="{% url 'apply_author' %}" class="btn btn-sm btn-outline-light">Apply to become an Author</a>
+    </div>
+</div>
 
-    <h3>Recently read</h3>
-    <ul>
+<div class="row g-4">
+    <div class="col-md-4">
+        <h2 class="h5">Recently read</h2>
         {% for r in recent_reads %}
-            <li><a href="{% url 'writeup_detail' r.writeup.pk %}">{{ r.writeup.title }}</a> — {{ r.timestamp|date:"M d, Y" }}</li>
+            <div class="card p-3 mb-3">
+                <a href="{% url 'writeup_detail' r.writeup.pk %}" class="text-decoration-none">{{ r.writeup.title }}</a>
+                <span class="text-muted small d-block">{{ r.timestamp|date:"M d, Y" }}</span>
+            </div>
         {% empty %}
-            <li>No reads yet.</li>
+            <p class="text-muted small">No reads yet.</p>
         {% endfor %}
-    </ul>
-
-    <h3>Recently unlocked</h3>
-    <ul>
+    </div>
+    <div class="col-md-4">
+        <h2 class="h5">Recently unlocked</h2>
         {% for u in recent_unlocks %}
-            <li><a href="{% url 'writeup_detail' u.writeup.pk %}">{{ u.writeup.title }}</a> — {{ u.timestamp|date:"M d, Y" }}</li>
+            <div class="card p-3 mb-3">
+                <a href="{% url 'writeup_detail' u.writeup.pk %}" class="text-decoration-none">{{ u.writeup.title }}</a>
+                <span class="text-muted small d-block">{{ u.timestamp|date:"M d, Y" }}</span>
+            </div>
         {% empty %}
-            <li>No unlocks yet.</li>
+            <p class="text-muted small">No unlocks yet.</p>
         {% endfor %}
-    </ul>
+    </div>
+    <div class="col-md-4">
+        <h2 class="h5">Ratings given</h2>
+        {% for r in recent_ratings %}
+            <div class="card p-3 mb-3">
+                <a href="{% url 'writeup_detail' r.writeup.pk %}" class="text-decoration-none">{{ r.writeup.title }}</a>
+                <span class="coin-badge small d-block">{{ r.score }} / 5</span>
+            </div>
+        {% empty %}
+            <p class="text-muted small">No ratings yet.</p>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

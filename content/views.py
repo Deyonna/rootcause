@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.db import models
 from .models import WriteUp, Category, ReadLog, Unlock, Rating
-from .forms import CommentForm, CommentForm, WriteUpForm
+from .forms import CommentForm, WriteUpForm, ContactForm
 from .utils import has_access
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -243,7 +243,7 @@ def checkout(request):
             else:
                 recipient = request.user
 
-            # simulated payment: no real charge, no coin deduction — just "goes through"
+            # simulated payment: no real charge, no coin deduction - just "goes through"
             Subscription.objects.create(
                 user=recipient,
                 plan=plan,
@@ -273,7 +273,7 @@ def my_writeups(request):
 @author_required
 def writeup_create(request):
     if request.method == 'POST':
-        form = WriteUpForm(request.POST)
+        form = WriteUpForm(request.POST, request.FILES)
         if form.is_valid():
             writeup = form.save(commit=False)
             writeup.author = request.user
@@ -289,7 +289,7 @@ def writeup_create(request):
 def writeup_edit(request, pk):
     writeup = get_object_or_404(WriteUp, pk=pk, author=request.user)
     if request.method == 'POST':
-        form = WriteUpForm(request.POST, instance=writeup)
+        form = WriteUpForm(request.POST, request.FILES, instance=writeup)
         if form.is_valid():
             form.save()
             messages.success(request, f'Updated "{writeup.title}".')
@@ -306,3 +306,20 @@ def writeup_delete(request, pk):
         writeup.delete()
         messages.success(request, f'Deleted "{writeup.title}".')
     return redirect('my_writeups')
+
+
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            if not form.cleaned_data.get('website'):
+                form.save()
+            messages.success(request, "Thanks - your message has been received.")
+            return redirect('contact')
+    else:
+        form = ContactForm()
+    return render(request, 'content/contact.html', {'form': form})
+
+
+def about(request):
+    return render(request, 'content/about.html')

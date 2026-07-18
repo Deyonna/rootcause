@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from content.models import ReadLog, Unlock
+from content.models import ReadLog, Unlock, Rating
 from .models import AuthorApplication
 from .forms import RegisterForm, AuthorApplicationForm, UserUpdateForm, ProfileUpdateForm
 
@@ -18,13 +18,6 @@ def register(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 
-@login_required
-def dashboard(request):
-    profile = request.user.profile
-    if profile.role == 'author':
-        return render(request, 'accounts/author_dashboard.html', {'profile': profile})
-    return render(request, 'accounts/reader_dashboard.html', {'profile': profile})
-    
 @login_required
 def apply_author(request):
     profile = request.user.profile
@@ -71,6 +64,7 @@ def dashboard(request):
     profile = request.user.profile
     recent_reads = ReadLog.objects.filter(user=request.user).select_related('writeup').order_by('-timestamp')[:5]
     recent_unlocks = Unlock.objects.filter(user=request.user).select_related('writeup').order_by('-timestamp')[:5]
+    recent_ratings = Rating.objects.filter(user=request.user).select_related('writeup').order_by('-created_at')[:5]
     free_count = ReadLog.objects.filter(user=request.user).count()
     unlocked_count = Unlock.objects.filter(user=request.user).count()
 
@@ -78,6 +72,7 @@ def dashboard(request):
         'profile': profile,
         'recent_reads': recent_reads,
         'recent_unlocks': recent_unlocks,
+        'recent_ratings': recent_ratings,
         'free_count': free_count,
         'unlocked_count': unlocked_count,
     }

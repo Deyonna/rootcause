@@ -1,38 +1,162 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en" data-bs-theme="dark">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{% block meta_description %}/cause - a community platform for security write-ups, CTF walkthroughs, and original research.{% endblock %}">
+    <meta name="author" content="/cause">
+    <meta name="theme-color" content="#1B1B1D">
     <title>{% block title %}/cause{% endblock %}</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" defer></script>
 </head>
 <body>
-    <nav>
-        {% if messages %}
-        <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        
-        <a href="{% url 'writeup_list' %}"><span style="opacity:0.6;">/</span>cause</a>
-        {% if user.is_authenticated %}
-            <a href="{% url 'subscription_plans' %}">Subscriptions</a>
-            <a href="{% url 'view_cart' %}">Cart</a>
-            <span>{{ user.profile.coins }} coins</span>
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" style="background:none; border:none; padding:0; color:blue; text-decoration:underline; cursor:pointer;">
-                    Log out
-                </button>
-            </form>
-        {% else %}
-            <a href="{% url 'login' %}">Log in</a>
-            <a href="{% url 'register' %}">Register</a>
-        {% endif %}
-    </nav>
+<a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
 
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top" aria-label="Main navigation">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'writeup_list' %}">
+            <span class="slash">/</span>cause
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="{% url 'writeup_list' %}">Browse</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'subscription_plans' %}">Subscriptions</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+            </ul>
+            <ul class="navbar-nav align-items-lg-center gap-lg-2">
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'view_cart' %}">Cart</a></li>
+                    <li class="nav-item"><a class="nav-link coin-badge" href="{% url 'dashboard' %}">{{ user.profile.coins }} coins</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="profileMenu"
+                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" width="28" height="28" class="rounded-circle" style="object-fit:cover;" alt="">
+                            {% else %}
+                                <i class="bi bi-person-circle fs-5" aria-hidden="true"></i>
+                            {% endif %}
+                            <span>{{ user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileMenu">
+                            <li><a class="dropdown-item" href="{% url 'dashboard' %}">My Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'edit_profile' %}">Edit Profile</a></li>
+                            {% if user.is_superuser %}
+                                <li><a class="dropdown-item dropdown-item-accent" href="{% url 'admin_dashboard' %}">Admin</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">Log out</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Log in</a></li>
+                    <li class="nav-item"><a class="btn btn-accent btn-sm ms-lg-2" href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<main id="main-content" class="container py-4">
     {% block content %}
     {% endblock %}
+</main>
+
+<footer class="border-top mt-4 py-3">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-lg-3">
+                <a href="{% url 'writeup_list' %}" class="navbar-brand fw-bold d-inline-block mb-1">
+                    <span class="slash">/</span>cause
+                </a>
+                <p class="text-muted small mb-0">Security write-ups, CTF walkthroughs, and research from the community.</p>
+            </div>
+
+            <div class="col-6 col-lg-2">
+                <h2 class="h6 text-uppercase text-muted small mb-2">Explore</h2>
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-1"><a href="{% url 'writeup_list' %}" class="footer-link">Browse</a></li>
+                    <li class="mb-1"><a href="{% url 'subscription_plans' %}" class="footer-link">Subscriptions</a></li>
+                </ul>
+            </div>
+
+            <div class="col-6 col-lg-2">
+                <h2 class="h6 text-uppercase text-muted small mb-2">Help</h2>
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-1"><a href="{% url 'about' %}" class="footer-link">About</a></li>
+                    <li class="mb-1"><a href="{% url 'contact' %}" class="footer-link">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="col-6 col-lg-2">
+                <h2 class="h6 text-uppercase text-muted small mb-2">Account</h2>
+                <ul class="list-unstyled small mb-0">
+                    {% if user.is_authenticated %}
+                        <li class="mb-1"><a href="{% url 'dashboard' %}" class="footer-link">Dashboard</a></li>
+                        <li class="mb-1"><a href="{% url 'view_cart' %}" class="footer-link">Cart</a></li>
+                        {% if user.is_superuser %}
+                            <li class="mb-1"><a href="{% url 'admin_dashboard' %}" class="footer-link">Admin</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li class="mb-1"><a href="{% url 'login' %}" class="footer-link">Log in</a></li>
+                        <li class="mb-1"><a href="{% url 'register' %}" class="footer-link">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <h2 class="h6 text-uppercase text-muted small mb-2">Follow</h2>
+                <div class="d-flex gap-3 fs-5">
+                    <a href="https://twitter.com/" class="footer-social" target="_blank" rel="noopener noreferrer" aria-label="/cause on X (Twitter)">
+                        <i class="bi bi-twitter-x" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://github.com/Deyonna/rootcause" class="footer-social" target="_blank" rel="noopener noreferrer" aria-label="/cause on GitHub">
+                        <i class="bi bi-github" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://discord.gg/" class="footer-social" target="_blank" rel="noopener noreferrer" aria-label="/cause on Discord">
+                        <i class="bi bi-discord" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://linkedin.com/" class="footer-social" target="_blank" rel="noopener noreferrer" aria-label="/cause on LinkedIn">
+                        <i class="bi bi-linkedin" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-3">
+
+        <div class="text-center text-muted small">
+            &copy; {% now "Y" %} <span class="slash">/</span>cause.
+        </div>
+    </div>
+</footer>
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>

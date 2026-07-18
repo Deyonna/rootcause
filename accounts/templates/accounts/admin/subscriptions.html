@@ -1,0 +1,47 @@
+{% extends 'accounts/admin/base.html' %}
+{% block title %}Subscriptions - Admin - /cause{% endblock %}
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="h5 mb-0">Subscriptions &amp; revenue</h2>
+    <span class="badge badge-premium">Total: ${{ total_revenue|floatformat:2 }}</span>
+</div>
+
+<div class="card p-3">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">User</th>
+                    <th scope="col">Plan</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Started</th>
+                    <th scope="col">Expires</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Gift</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in subscriptions %}
+                    <tr>
+                        <td><a href="{% url 'admin_user_detail' s.user.pk %}" class="text-decoration-none">{{ s.user.username }}</a></td>
+                        <td>{{ s.plan.name }}</td>
+                        <td>${{ s.plan.price|floatformat:2 }}</td>
+                        <td>{{ s.started_at|date:"M d, Y" }}</td>
+                        <td>{{ s.expires_at|date:"M d, Y" }}</td>
+                        <td>
+                            {% if s.is_active %}
+                                <span class="badge badge-premium">Active</span>
+                            {% else %}
+                                <span class="badge badge-free">Expired</span>
+                            {% endif %}
+                        </td>
+                        <td>{% if s.gifted_by %}from {{ s.gifted_by.username }}{% else %}-{% endif %}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-muted">No subscriptions yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

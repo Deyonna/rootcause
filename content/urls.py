@@ -17,4 +17,6 @@ urlpatterns = [
     path('writeup/new/', views.writeup_create, name='writeup_create'),
     path('writeup/<int:pk>/edit/', views.writeup_edit, name='writeup_edit'),
     path('writeup/<int:pk>/delete/', views.writeup_delete, name='writeup_delete'),
+    path('contact/', views.contact, name='contact'),
+    path('about/', views.about, name='about'),
 ]

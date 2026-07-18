@@ -1,0 +1,12 @@
+<div class="card p-2 admin-sidebar">
+    <div class="list-group list-group-flush">
+        <a href="{% url 'admin_dashboard' %}" class="list-group-item list-group-item-action {% if active_tab == 'overview' %}active{% endif %}">Overview</a>
+        <a href="{% url 'admin_users' %}" class="list-group-item list-group-item-action {% if active_tab == 'users' %}active{% endif %}">Users</a>
+        <a href="{% url 'admin_writeups' %}" class="list-group-item list-group-item-action {% if active_tab == 'writeups' %}active{% endif %}">WriteUps</a>
+        <a href="{% url 'admin_categories' %}" class="list-group-item list-group-item-action {% if active_tab == 'categories' %}active{% endif %}">Categories</a>
+        <a href="{% url 'admin_plans' %}" class="list-group-item list-group-item-action {% if active_tab == 'plans' %}active{% endif %}">Subscription Plans</a>
+        <a href="{% url 'admin_subscriptions' %}" class="list-group-item list-group-item-action {% if active_tab == 'subscriptions' %}active{% endif %}">Subscriptions</a>
+        <a href="{% url 'admin_applications' %}" class="list-group-item list-group-item-action {% if active_tab == 'applications' %}active{% endif %}">Author Applications</a>
+        <a href="{% url 'admin_messages' %}" class="list-group-item list-group-item-action {% if active_tab == 'messages' %}active{% endif %}">Contact Messages</a>
+    </div>
+</div>

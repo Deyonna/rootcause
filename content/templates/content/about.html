@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}About - /cause{% endblock %}
+{% block content %}
+<div class="row g-4 align-items-start">
+    <div class="col-lg-7">
+        <h1 class="h3 mb-3">About /cause</h1>
+        <p class="lh-lg">
+            /cause is a community-run platform for security write-ups, CTF walkthroughs, and original
+            research. We built it so authors could share deep technical breakdowns and readers could
+            unlock premium content either with a subscription or with coins earned just by reading.
+        </p>
+        <p class="lh-lg text-muted mb-0">
+            Have a question, a correction, or want to write for us? <a href="{% url 'contact' %}">Get in touch</a> -
+            we'd love to hear from you.
+        </p>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card p-0 overflow-hidden">
+            
+            <div class="d-flex flex-column align-items-center justify-content-center text-muted" style="height: 320px;">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d36603.653057091695!2d23.78519467711923!3d38.01835758263283!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a199709f059559%3A0xad1dacf4713268b2!2sAmerican%20College%20of%20Greece!5e0!3m2!1sen!2sgr!4v1784367975069!5m2!1sen!2sgr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                <i class="bi bi-geo-alt fs-1 mb-2" aria-hidden="true"></i>
+                <p class="mb-0">American College of Greece</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

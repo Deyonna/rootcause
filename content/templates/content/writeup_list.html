@@ -1,39 +1,75 @@
 {% extends 'base.html' %}
-{% block title %}/cause{% endblock %}
+{% load static %}
+{% block title %}/cause - Browse WriteUps{% endblock %}
 {% block content %}
-    <form method="get">
-        <input type="text" name="q" placeholder="Search by title" value="{{ query }}">
+<h1 class="h3 mb-4">Latest WriteUps</h1>
 
-        <select name="category">
+<form method="get" class="row g-2 align-items-end mb-4" role="search" aria-label="Search and filter writeups">
+    <div class="col-12 col-md-4">
+        <label for="q" class="form-label small text-muted">Search</label>
+        <input type="text" id="q" name="q" class="form-control" placeholder="Search by title" value="{{ query }}">
+    </div>
+    <div class="col-6 col-md-3">
+        <label for="category" class="form-label small text-muted">Category</label>
+        <select id="category" name="category" class="form-select">
             <option value="">All categories</option>
             {% for cat in categories %}
-                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
-                    {{ cat.name }}
-                </option>
+                <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
             {% endfor %}
         </select>
+    </div>
+    <div class="col-3 col-md-2">
+        <label for="min_coins" class="form-label small text-muted">Min coins</label>
+        <input type="number" id="min_coins" name="min_coins" class="form-control" value="{{ min_coins }}">
+    </div>
+    <div class="col-3 col-md-2">
+        <label for="max_coins" class="form-label small text-muted">Max coins</label>
+        <input type="number" id="max_coins" name="max_coins" class="form-control" value="{{ max_coins }}">
+    </div>
+    <div class="col-12 col-md-1 d-grid">
+        <button type="submit" class="btn btn-accent">Go</button>
+    </div>
+    <div class="col-12">
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="premium_only" name="premium_only" {% if premium_only == 'on' %}checked{% endif %}>
+            <label class="form-check-label small" for="premium_only">Premium only</label>
+        </div>
+    </div>
+    <div class="col-12"><a href="{% url 'writeup_list' %}" class="small">Clear filters</a></div>
+</form>
 
-        <input type="number" name="min_coins" placeholder="Min coins" value="{{ min_coins }}">
-        <input type="number" name="max_coins" placeholder="Max coins" value="{{ max_coins }}">
-
-        <label>
-            <input type="checkbox" name="premium_only" {% if premium_only == 'on' %}checked{% endif %}>
-            Premium only
-        </label>
-
-        <button type="submit">Search / Filter</button>
-        <a href="{% url 'writeup_list' %}">Clear</a>
-    </form>
-
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for w in writeups %}
-        <div>
-            <h3><a href="{% url 'writeup_detail' w.pk %}">{{ w.title }}</a></h3>
-            <p>By {{ w.author.username }} in {{ w.category }}</p>
-            {% if w.is_premium %}
-                <p>Premium - {{ w.coin_cost }} coins</p>
-            {% endif %}
+        <div class="col">
+            <div class="card h-100 {% if w.is_premium %}card-premium{% endif %}">
+                {% if w.image %}
+                    <img src="{{ w.image.url }}" alt="" class="writeup-thumb">
+                {% else %}
+                    <img src="{% static 'img/writeup-default.svg' %}" alt="" class="writeup-thumb">
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <div class="mb-2">
+                        {% if w.is_premium %}
+                            <span class="badge badge-premium">Premium - {{ w.coin_cost }} coins</span>
+                        {% else %}
+                            <span class="badge badge-free">Free</span>
+                        {% endif %}
+                    </div>
+                    <h2 class="h5">
+                        <a href="{% url 'writeup_detail' w.pk %}" class="stretched-link text-reset text-decoration-none">{{ w.title }}</a>
+                    </h2>
+                    <p class="small text-muted mb-3">By {{ w.author.username }} in {{ w.category }}</p>
+                    {% if w.is_premium %}
+                        <form method="post" action="{% url 'add_to_cart' w.pk %}" class="mt-auto position-relative" style="z-index:2;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-light">Add to Cart</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     {% empty %}
-        <p>No writeups match your search.</p>
+        <p class="text-muted">No writeups match your search.</p>
     {% endfor %}
+</div>
 {% endblock %}

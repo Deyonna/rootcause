@@ -1,27 +1,36 @@
 {% extends 'base.html' %}
 {% block title %}Cart - /cause{% endblock %}
 {% block content %}
-    <h1>Your Cart</h1>
+<h1 class="h3 mb-4">Your Cart</h1>
 
-    {% for item in items %}
-        <div>
-            <span>{{ item.label }} — {{ item.cost }}</span>
-            <form method="post" action="{% url 'remove_from_cart' item.index %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit">Remove</button>
-            </form>
-        </div>
-    {% empty %}
-        <p>Your cart is empty.</p>
-    {% endfor %}
+{% for item in items %}
+    <div class="card p-3 mb-3 d-flex flex-row justify-content-between align-items-center flex-wrap gap-2">
+        <span>{{ item.label }} - {{ item.cost }}</span>
+        <form method="post" action="{% url 'remove_from_cart' item.index %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+        </form>
+    </div>
+{% empty %}
+    <p class="text-muted">Your cart is empty.</p>
+{% endfor %}
 
-    <p>Coin total: {{ coin_total }}</p>
-    <p>Card total: ${{ money_total }}</p>
-
-    {% if items %}
+{% if items %}
+    <div class="card p-3 mt-4">
+        <p class="mb-3">
+            Total:
+            {% if coin_total and money_total %}
+                {{ coin_total }} coins + ${{ money_total|floatformat:2 }}
+            {% elif coin_total %}
+                {{ coin_total }} coins
+            {% else %}
+                ${{ money_total|floatformat:2 }}
+            {% endif %}
+        </p>
         <form method="post" action="{% url 'checkout' %}">
             {% csrf_token %}
-            <button type="submit">Checkout</button>
+            <button type="submit" class="btn btn-accent">Checkout</button>
         </form>
-    {% endif %}
+    </div>
+{% endif %}
 {% endblock %}

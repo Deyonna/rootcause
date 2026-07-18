@@ -23,4 +23,4 @@ class Subscription(models.Model):
         return self.expires_at >= timezone.now()
 
     def __str__(self):
-        return f"{self.user.username} — {self.plan.name}"
+        return f"{self.user.username} - {self.plan.name}"

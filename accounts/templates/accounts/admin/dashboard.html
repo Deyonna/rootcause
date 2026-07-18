@@ -1,0 +1,57 @@
+{% extends 'accounts/admin/base.html' %}
+{% block title %}Admin - /cause{% endblock %}
+{% block admin_content %}
+<div class="row row-cols-2 row-cols-md-4 g-3 mb-4">
+    <div class="col">
+        <div class="card p-3 text-center h-100">
+            <div class="h4 mb-0">{{ total_users }}</div>
+            <div class="small text-muted">Users</div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card p-3 text-center h-100">
+            <div class="h4 mb-0">{{ total_writeups }}</div>
+            <div class="small text-muted">WriteUps ({{ premium_writeup_count }} premium)</div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card p-3 text-center h-100">
+            <div class="h4 mb-0">${{ total_revenue|floatformat:2 }}</div>
+            <div class="small text-muted">Subscription revenue</div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card p-3 text-center h-100">
+            <div class="h4 mb-0">{{ total_coins }}</div>
+            <div class="small text-muted">Total coins across all users</div>
+        </div>
+    </div>
+</div>
+
+<h2 class="h5 mb-3">Pending author applications</h2>
+{% if pending_applications %}
+<div class="card p-3">
+    {% for app in pending_applications %}
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 {% if not forloop.last %}border-bottom pb-3 mb-3{% endif %}">
+            <div>
+                <strong>{{ app.user.username }}</strong>
+                <span class="text-muted small d-block">Submitted {{ app.submitted_at|date:"M d, Y" }}</span>
+                <p class="mb-0 small mt-1">{{ app.sample_text|truncatewords:40 }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <form method="post" action="{% url 'admin_review_application' app.pk 'approved' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-accent">Approve</button>
+                </form>
+                <form method="post" action="{% url 'admin_review_application' app.pk 'rejected' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No pending applications.</p>
+{% endif %}
+{% endblock %}

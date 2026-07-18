@@ -1,0 +1,55 @@
+{% extends 'accounts/admin/base.html' %}
+{% load static %}
+{% block title %}Edit WriteUp - Admin - /cause{% endblock %}
+{% block admin_content %}
+<a href="{% url 'admin_writeups' %}" class="small d-inline-block mb-3">&larr; Back to writeups</a>
+<div class="card p-4">
+    <h2 class="h5 mb-3">Edit "{{ writeup.title }}"</h2>
+    <p class="text-muted small">By {{ writeup.author.username }}</p>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-3">
+                {% if field.name == 'is_premium' %}
+                    <div class="form-check">
+                        {{ field }}
+                        <label for="{{ field.id_for_label }}" class="form-check-label">{{ field.label }}</label>
+                    </div>
+                {% elif field.name == 'image' %}
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% if form.instance.image %}
+                        <img src="{{ form.instance.image.url }}" alt="Current image" class="d-block mb-2" style="max-width:220px;border-radius:.4rem;">
+                    {% endif %}
+                    {{ field }}
+                    <div class="form-text">Optional - a default image is used if none is uploaded.</div>
+                {% elif field.name == 'body' %}
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    <div id="md-toolbar" class="btn-group btn-group-sm md-toolbar mb-2" role="group" aria-label="Markdown formatting">
+                        <button type="button" class="btn btn-outline-light" data-md="bold" aria-label="Bold"><i class="bi bi-type-bold" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-outline-light" data-md="italic" aria-label="Italic"><i class="bi bi-type-italic" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-outline-light" data-md="heading" aria-label="Heading"><i class="bi bi-type-h2" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-outline-light" data-md="link" aria-label="Link"><i class="bi bi-link-45deg" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-outline-light" data-md="code" aria-label="Inline code"><i class="bi bi-code" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-outline-light" data-md="codeblock" aria-label="Code block"><i class="bi bi-code-square" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-outline-light" data-md="list" aria-label="Bulleted list"><i class="bi bi-list-ul" aria-hidden="true"></i></button>
+                    </div>
+                    {{ field }}
+                    <div class="form-text">Markdown supported: **bold**, *italic*, # headings, `code`, ```code blocks```, and - lists.</div>
+                {% else %}
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                {% endif %}
+                {% if field.errors %}
+                    <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-accent">Save</button>
+        <a href="{% url 'admin_writeups' %}" class="btn btn-outline-light">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/markdown-toolbar.js' %}"></script>
+{% endblock %}

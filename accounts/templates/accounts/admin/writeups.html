@@ -1,0 +1,57 @@
+{% extends 'accounts/admin/base.html' %}
+{% block title %}WriteUps - Admin - /cause{% endblock %}
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="h5 mb-0">WriteUps</h2>
+    <form method="get" class="d-flex gap-2">
+        <label for="q" class="visually-hidden">Search writeups</label>
+        <input type="text" id="q" name="q" class="form-control form-control-sm" placeholder="Search by title" value="{{ query }}">
+        <button type="submit" class="btn btn-sm btn-outline-light">Search</button>
+    </form>
+</div>
+
+<div class="card p-3">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Access</th>
+                    <th scope="col">Avg rating</th>
+                    <th scope="col">Created</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for w in writeups %}
+                    <tr>
+                        <td><a href="{% url 'writeup_detail' w.pk %}" class="text-decoration-none">{{ w.title }}</a></td>
+                        <td><a href="{% url 'admin_user_detail' w.author.pk %}" class="text-decoration-none">{{ w.author.username }}</a></td>
+                        <td>{{ w.category|default:"-" }}</td>
+                        <td>
+                            {% if w.is_premium %}
+                                <span class="badge badge-premium">{{ w.coin_cost }} coins</span>
+                            {% else %}
+                                <span class="badge badge-free">Free</span>
+                            {% endif %}
+                        </td>
+                        <td>{% if w.avg_rating %}{{ w.avg_rating|floatformat:1 }}{% else %}-{% endif %}</td>
+                        <td>{{ w.created_at|date:"M d, Y" }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'admin_writeup_edit' w.pk %}" class="btn btn-sm btn-outline-light">Edit</a>
+                            <form method="post" action="{% url 'admin_writeup_delete' w.pk %}" class="d-inline" onsubmit="return confirm('Delete this writeup?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-muted">No writeups found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

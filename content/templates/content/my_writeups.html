@@ -1,20 +1,43 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}My WriteUps - /cause{% endblock %}
 {% block content %}
-    <h1>My WriteUps</h1>
-    <a href="{% url 'writeup_create' %}">+ New WriteUp</a>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h1 class="h3 mb-0">My WriteUps</h1>
+    <a href="{% url 'writeup_create' %}" class="btn btn-accent">+ New WriteUp</a>
+</div>
 
-    {% for w in writeups %}
-        <div>
-            <h3><a href="{% url 'writeup_detail' w.pk %}">{{ w.title }}</a></h3>
-            <p>{% if w.is_premium %}🔒 Premium ({{ w.coin_cost }} coins){% else %}Free{% endif %} — {{ w.category }}</p>
-            <a href="{% url 'writeup_edit' w.pk %}">Edit</a>
-            <form method="post" action="{% url 'writeup_delete' w.pk %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" onclick="return confirm('Delete this writeup?')">Delete</button>
-            </form>
+{% for w in writeups %}
+    <div class="card p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+            <div class="d-flex gap-3">
+                {% if w.image %}
+                    <img src="{{ w.image.url }}" alt="" width="72" height="72" style="object-fit:cover;border-radius:.4rem;">
+                {% else %}
+                    <img src="{% static 'img/writeup-default.svg' %}" alt="" width="72" height="72" style="object-fit:cover;border-radius:.4rem;">
+                {% endif %}
+                <div>
+                    <h2 class="h5 mb-1"><a href="{% url 'writeup_detail' w.pk %}" class="text-decoration-none">{{ w.title }}</a></h2>
+                    <p class="small text-muted mb-0">
+                        {% if w.is_premium %}
+                            <span class="badge badge-premium">Premium - {{ w.coin_cost }} coins</span>
+                        {% else %}
+                            <span class="badge badge-free">Free</span>
+                        {% endif %}
+                        {{ w.category }}
+                    </p>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'writeup_edit' w.pk %}" class="btn btn-sm btn-outline-light">Edit</a>
+                <form method="post" action="{% url 'writeup_delete' w.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this writeup?')">Delete</button>
+                </form>
+            </div>
         </div>
-    {% empty %}
-        <p>You haven't written anything yet.</p>
-    {% endfor %}
+    </div>
+{% empty %}
+    <p class="text-muted">You haven't written anything yet.</p>
+{% endfor %}
 {% endblock %}

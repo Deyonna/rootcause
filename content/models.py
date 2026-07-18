@@ -15,9 +15,10 @@ class Category(models.Model):
 
 class WriteUp(models.Model):
     title = models.CharField(max_length=200)
-    body = models.TextField()
+    body = models.TextField(max_length=20000)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='writeups')
+    image = models.ImageField(upload_to='writeups/', blank=True, null=True)
     is_premium = models.BooleanField(default=False)
     coin_cost = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -67,3 +68,14 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} on {self.writeup.title}"
+
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    subject = models.CharField(max_length=150)
+    message = models.TextField(max_length=5000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.subject} - {self.name}"

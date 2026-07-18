@@ -1,0 +1,118 @@
+:root {
+  --bg: #1B1B1D;
+  --bg-alt: #202023;
+  --card: #2A2A2D;
+  --card-alt: #302019;
+  --orange: #F2A623;
+  --burnt: #C4501C;
+  --gray: #6B6E70;
+  --muted: #9C9A96;
+  --text: #F4F3EF;
+
+  --bs-body-bg: var(--bg);
+  --bs-body-color: var(--text);
+  --bs-border-color: #38383b;
+  --bs-primary: var(--orange);
+  --bs-primary-rgb: 242, 166, 35;
+  --bs-link-color: var(--orange);
+  --bs-link-hover-color: var(--burnt);
+}
+
+html, body { overflow-x: hidden; max-width: 100%; }
+body { display: flex; flex-direction: column; min-height: 100vh; }
+main { flex: 1 0 auto; }
+img { max-width: 100%; height: auto; }
+
+.navbar { background-color: var(--bg-alt); border-bottom: 1px solid #333; }
+.navbar-brand .slash { color: var(--orange); font-weight: 700; }
+.navbar-brand { color: var(--text) !important; }
+.nav-link { color: var(--muted) !important; }
+.nav-link:hover, .nav-link:focus { color: var(--text) !important; }
+.coin-badge { color: var(--orange) !important; font-weight: 600; }
+.nav-link-accent { color: var(--orange) !important; font-weight: 600; }
+.nav-link-accent:hover, .nav-link-accent:focus { color: var(--burnt) !important; }
+
+.btn-accent {
+  background-color: var(--orange);
+  border-color: var(--orange);
+  color: #2b1400;
+  font-weight: 600;
+}
+.btn-accent:hover, .btn-accent:focus {
+  background-color: var(--burnt);
+  border-color: var(--burnt);
+  color: #fff;
+}
+
+.card { background-color: var(--card); border: 1px solid #38383b; border-radius: .6rem; }
+.card-premium { border-color: var(--burnt); background-color: var(--card-alt); }
+.badge-premium { background-color: var(--burnt); color: #fff; }
+.badge-free { background-color: #3a3a3d; color: var(--muted); }
+
+.star { cursor: pointer; font-size: 1.4rem; color: var(--orange); }
+
+.hp-field { position: absolute; left: -9999px; top: -9999px; }
+
+a:focus-visible, button:focus-visible, .btn:focus-visible,
+.nav-link:focus-visible, .star:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.dropdown-menu {
+  background-color: var(--card);
+  border: 1px solid #38383b;
+}
+.dropdown-item {
+  color: var(--muted);
+}
+.dropdown-item:hover, .dropdown-item:focus {
+  background-color: var(--bg-alt);
+  color: var(--text);
+}
+.dropdown-item-accent { color: var(--orange); font-weight: 600; }
+.dropdown-item-accent:hover, .dropdown-item-accent:focus { color: var(--burnt); background-color: var(--bg-alt); }
+.dropdown-divider { border-color: #38383b; }
+
+footer { background-color: var(--bg-alt); border-color: #333 !important; }
+.footer-link { color: var(--muted); text-decoration: none; }
+.footer-link:hover, .footer-link:focus { color: var(--orange); text-decoration: underline; }
+.footer-social { color: var(--muted); }
+.footer-social:hover, .footer-social:focus { color: var(--orange); }
+
+.admin-sidebar .list-group-item {
+  background-color: transparent;
+  color: var(--muted);
+  border-color: #38383b;
+}
+.admin-sidebar .list-group-item:hover,
+.admin-sidebar .list-group-item:focus {
+  background-color: var(--bg-alt);
+  color: var(--text);
+}
+.admin-sidebar .list-group-item.active {
+  background-color: var(--orange);
+  border-color: var(--orange);
+  color: #2b1400;
+  font-weight: 600;
+}
+
+.writeup-thumb { width: 100%; height: 160px; object-fit: cover; border-radius: .6rem .6rem 0 0; }
+.writeup-hero { width: 100%; max-height: 360px; object-fit: cover; border-radius: .6rem; }
+
+.writeup-body { overflow-wrap: break-word; word-break: break-word; }
+.writeup-body img { max-width: 100%; height: auto; border-radius: .4rem; }
+.writeup-body pre {
+  overflow-x: auto;
+  background-color: var(--bg-alt);
+  border: 1px solid #38383b;
+  padding: .75rem 1rem;
+  border-radius: .4rem;
+}
+.writeup-body code { background-color: var(--bg-alt); padding: .1rem .35rem; border-radius: .3rem; }
+.writeup-body pre code { background: none; padding: 0; }
+.writeup-body table { display: block; overflow-x: auto; max-width: 100%; }
+.writeup-body blockquote { border-left: 3px solid var(--orange); padding-left: 1rem; color: var(--muted); margin-left: 0; }
+
+.md-toolbar .btn { color: var(--muted); border-color: #38383b; }
+.md-toolbar .btn:hover, .md-toolbar .btn:focus { color: var(--text); background-color: var(--bg-alt); }

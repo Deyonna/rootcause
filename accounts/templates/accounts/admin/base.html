@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1 class="h3 mb-4">Admin Console</h1>
+<div class="row g-4">
+    <div class="col-lg-3 col-xl-2">
+        {% include 'accounts/admin/_sidebar.html' %}
+    </div>
+    <div class="col-lg-9 col-xl-10">
+        {% block admin_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

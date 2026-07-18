@@ -127,9 +127,6 @@ def add_comment(request, pk):
     if not has_access(request.user, writeup):
         return redirect('writeup_detail', pk=pk)
 
-    if writeup.is_premium and not Unlock.objects.filter(user=request.user, writeup=writeup).exists():
-        return redirect('writeup_detail', pk=pk)
-
     form = CommentForm(request.POST)
     if form.is_valid():
         comment = form.save(commit=False)
@@ -210,7 +207,7 @@ def checkout(request):
         else:
             recipient = request.user
 
-        # simulated payment: no real charge, no coin deduction - just "goes through"
+        # simulated payment: it works as if the payment was successful.
         Subscription.objects.create(
             user=recipient,
             plan=plan,

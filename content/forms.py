@@ -21,9 +21,7 @@ class WriteUpForm(BootstrapFormMixin, forms.ModelForm):
 
 
 class ContactForm(BootstrapFormMixin, forms.ModelForm):
-    # Honeypot: real users never see or fill this field (hidden off-screen in the
-    # template); bots that auto-fill every input will, so a non-empty value here
-    # marks the submission as spam without telling the bot it was caught.
+    # Honeypot: real users never see or fill this field (hidden off-screen in the template) bots that auto-fill every input will, so a non-empty value here marks the submission as spam.
     website = forms.CharField(required=False, widget=forms.TextInput(attrs={'tabindex': '-1', 'autocomplete': 'off'}))
 
     class Meta:

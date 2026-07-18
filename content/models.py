@@ -39,6 +39,9 @@ class Rating(models.Model):
     class Meta:
         unique_together = ('writeup', 'user')
 
+    def __str__(self):
+        return f"{self.user.username} rated {self.writeup.title}: {self.score}"
+
 
 class ReadLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -48,6 +51,9 @@ class ReadLog(models.Model):
     class Meta:
         unique_together = ('user', 'writeup')
 
+    def __str__(self):
+        return f"{self.user.username} read {self.writeup.title}"
+
 
 class Unlock(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -56,6 +62,9 @@ class Unlock(models.Model):
 
     class Meta:
         unique_together = ('user', 'writeup')
+
+    def __str__(self):
+        return f"{self.user.username} unlocked {self.writeup.title}"
 
 class Comment(models.Model):
     writeup = models.ForeignKey(WriteUp, on_delete=models.CASCADE, related_name='comments')

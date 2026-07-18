@@ -6,7 +6,7 @@
         {% if profile.avatar %}
             <img src="{{ profile.avatar.url }}" width="70" height="70" class="rounded-circle" style="object-fit:cover;" alt="{{ profile.user.username }}'s avatar">
         {% endif %}
-        <div>
+        <div class="text-break" style="min-width:0;">
             <h1 class="h3 mb-1">Welcome, {{ profile.user.username }}
                 {% if profile.user.is_superuser %}
                     <span class="badge badge-premium">Admin</span>

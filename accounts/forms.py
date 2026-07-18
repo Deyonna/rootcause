@@ -31,6 +31,9 @@ class ProfileUpdateForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['bio', 'avatar']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 4}),
+        }
 
 
 class StyledLoginForm(BootstrapFormMixin, AuthenticationForm):

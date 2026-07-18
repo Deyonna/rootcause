@@ -116,3 +116,11 @@ footer { background-color: var(--bg-alt); border-color: #333 !important; }
 
 .md-toolbar .btn { color: var(--muted); border-color: #38383b; }
 .md-toolbar .btn:hover, .md-toolbar .btn:focus { color: var(--text); background-color: var(--bg-alt); }
+
+.error-code {
+  font-size: 4.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--orange);
+}
+.error-code .slash { color: var(--burnt); }

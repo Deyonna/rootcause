@@ -11,7 +11,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='reader')
     coins = models.IntegerField(default=0)
-    bio = models.TextField(blank=True)
+    bio = models.TextField(blank=True, max_length=500)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
 
     def __str__(self):

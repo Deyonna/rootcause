@@ -141,18 +141,6 @@ def add_comment(request, pk):
 
 @login_required
 @require_POST
-def add_to_cart(request, pk):
-    writeup = get_object_or_404(WriteUp, pk=pk, is_premium=True)
-    cart = request.session.get('cart', [])
-    if not any(i.get('type') == 'writeup' and i.get('id') == pk for i in cart):
-        cart.append({'type': 'writeup', 'id': pk})
-    request.session['cart'] = cart
-    messages.success(request, f'Added "{writeup.title}" to your cart.')
-    return redirect('writeup_list')
-
-
-@login_required
-@require_POST
 def add_subscription_to_cart(request, plan_id):
     plan = get_object_or_404(SubscriptionPlan, pk=plan_id)
     item = {'type': 'subscription', 'plan_id': plan.pk}
@@ -176,26 +164,19 @@ def add_subscription_to_cart(request, plan_id):
 def view_cart(request):
     cart = request.session.get('cart', [])
     display_items = []
-    coin_total = 0
     money_total = 0
 
     for idx, item in enumerate(cart):
-        if item['type'] == 'writeup':
-            w = WriteUp.objects.filter(pk=item['id']).first()
-            if w:
-                display_items.append({'index': idx, 'label': w.title, 'cost': f"{w.coin_cost} coins"})
-                coin_total += w.coin_cost
-        else:
-            plan = SubscriptionPlan.objects.filter(pk=item['plan_id']).first()
-            if plan:
-                label = plan.name
-                if item.get('is_gift'):
-                    label += f" (gift for {item.get('recipient_email')})"
-                display_items.append({'index': idx, 'label': label, 'cost': f"${plan.price}"})
-                money_total += plan.price
+        plan = SubscriptionPlan.objects.filter(pk=item['plan_id']).first()
+        if plan:
+            label = plan.name
+            if item.get('is_gift'):
+                label += f" (gift for {item.get('recipient_email')})"
+            display_items.append({'index': idx, 'label': label, 'cost': f"${plan.price}"})
+            money_total += plan.price
 
     return render(request, 'content/cart.html', {
-        'items': display_items, 'coin_total': coin_total, 'money_total': money_total,
+        'items': display_items, 'money_total': money_total,
     })
 
 
@@ -213,44 +194,30 @@ def remove_from_cart(request, index):
 @require_POST
 def checkout(request):
     cart = request.session.get('cart', [])
-    profile = request.user.profile
     unlocked_titles, skipped_titles = [], []
 
     for item in cart:
-        if item['type'] == 'writeup':
-            writeup = WriteUp.objects.filter(pk=item['id']).first()
-            if not writeup or has_access(request.user, writeup):
-                continue
-            if profile.coins >= writeup.coin_cost:
-                profile.coins -= writeup.coin_cost
-                profile.save()
-                Unlock.objects.create(user=request.user, writeup=writeup)
-                unlocked_titles.append(writeup.title)
-            else:
-                skipped_titles.append(writeup.title)
+        plan = SubscriptionPlan.objects.filter(pk=item['plan_id']).first()
+        if not plan:
+            continue
 
+        is_gift = item.get('is_gift')
+        if is_gift:
+            recipient = User.objects.filter(email__iexact=item.get('recipient_email')).first()
+            if not recipient:
+                skipped_titles.append(f"{plan.name} (no account with that email)")
+                continue
         else:
-            plan = SubscriptionPlan.objects.filter(pk=item['plan_id']).first()
-            if not plan:
-                continue
+            recipient = request.user
 
-            is_gift = item.get('is_gift')
-            if is_gift:
-                recipient = User.objects.filter(email__iexact=item.get('recipient_email')).first()
-                if not recipient:
-                    skipped_titles.append(f"{plan.name} (no account with that email)")
-                    continue
-            else:
-                recipient = request.user
-
-            # simulated payment: no real charge, no coin deduction - just "goes through"
-            Subscription.objects.create(
-                user=recipient,
-                plan=plan,
-                expires_at=timezone.now() + timedelta(days=plan.duration_days),
-                gifted_by=request.user if is_gift else None,
-            )
-            unlocked_titles.append(f"{plan.name} (${plan.price})")
+        # simulated payment: no real charge, no coin deduction - just "goes through"
+        Subscription.objects.create(
+            user=recipient,
+            plan=plan,
+            expires_at=timezone.now() + timedelta(days=plan.duration_days),
+            gifted_by=request.user if is_gift else None,
+        )
+        unlocked_titles.append(f"{plan.name} (${plan.price})")
 
     request.session['cart'] = []
 

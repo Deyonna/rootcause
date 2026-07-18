@@ -59,12 +59,6 @@
                         <a href="{% url 'writeup_detail' w.pk %}" class="stretched-link text-reset text-decoration-none">{{ w.title }}</a>
                     </h2>
                     <p class="small text-muted mb-3">By {{ w.author.username }} in {{ w.category }}</p>
-                    {% if w.is_premium %}
-                        <form method="post" action="{% url 'add_to_cart' w.pk %}" class="mt-auto position-relative" style="z-index:2;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-light">Add to Cart</button>
-                        </form>
-                    {% endif %}
                 </div>
             </div>
         </div>

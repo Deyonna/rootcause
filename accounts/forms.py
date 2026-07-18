@@ -34,4 +34,7 @@ class ProfileUpdateForm(BootstrapFormMixin, forms.ModelForm):
 
 
 class StyledLoginForm(BootstrapFormMixin, AuthenticationForm):
-    pass
+    error_messages = {
+        **AuthenticationForm.error_messages,
+        'invalid_login': 'Wrong email or password. Please try again.',
+    }

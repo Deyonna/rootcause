@@ -18,14 +18,7 @@
 {% if items %}
     <div class="card p-3 mt-4">
         <p class="mb-3">
-            Total:
-            {% if coin_total and money_total %}
-                {{ coin_total }} coins + ${{ money_total|floatformat:2 }}
-            {% elif coin_total %}
-                {{ coin_total }} coins
-            {% else %}
-                ${{ money_total|floatformat:2 }}
-            {% endif %}
+            Total: ${{ money_total|floatformat:2 }}
         </p>
         <form method="post" action="{% url 'checkout' %}">
             {% csrf_token %}

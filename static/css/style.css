@@ -101,6 +101,8 @@ footer { background-color: var(--bg-alt); border-color: #333 !important; }
 .writeup-hero { width: 100%; max-height: 360px; object-fit: contain; background-color: var(--bg-alt); border-radius: .6rem; }
 .writeup-img-default { object-fit: cover; }
 
+.writeup-title { font-size: 2.25rem; font-weight: 700; color: var(--text); border-bottom: 3px solid var(--orange); padding-bottom: .4rem; }
+
 .writeup-body { overflow-wrap: break-word; word-break: break-word; }
 .writeup-body img { max-width: 100%; height: auto; border-radius: .4rem; }
 .writeup-body pre {

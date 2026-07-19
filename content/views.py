@@ -16,19 +16,22 @@ from .decorators import author_required
 READ_REWARD = 10  # coins earned per free writeup, first read only
 
 def writeup_list(request):
-    writeups = WriteUp.objects.all().order_by('-created_at')
+    writeups = WriteUp.objects.all()
 
     query = request.GET.get('q', '')
     category_id = request.GET.get('category', '')
     min_coins = request.GET.get('min_coins', '')
     max_coins = request.GET.get('max_coins', '')
     premium_only = request.GET.get('premium_only', '')
+    sort = request.GET.get('sort', 'recent')
 
     if query:
         writeups = writeups.filter(title__icontains=query)
 
     if category_id:
-        writeups = writeups.filter(category_id=category_id)
+        category = Category.objects.filter(pk=category_id).first()
+        if category:
+            writeups = writeups.filter(category_id__in=category.get_descendant_ids())
 
     if min_coins:
         writeups = writeups.filter(coin_cost__gte=min_coins)
@@ -39,6 +42,12 @@ def writeup_list(request):
     if premium_only == 'on':
         writeups = writeups.filter(is_premium=True)
 
+    if sort == 'alphabetical':
+        writeups = writeups.order_by('title')
+    else:
+        sort = 'recent'
+        writeups = writeups.order_by('-created_at')
+
     categories = Category.sort_hierarchically(Category.objects.all())
 
     context = {
@@ -48,6 +57,7 @@ def writeup_list(request):
         'selected_category': category_id,
         'min_coins': min_coins,
         'max_coins': max_coins,
+        'sort': sort,
         'premium_only': premium_only,
     }
     return render(request, 'content/writeup_list.html', context)

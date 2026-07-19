@@ -11,7 +11,7 @@
             <img src="{% static 'img/writeup-default.svg' %}" alt="" class="writeup-hero writeup-img-default mb-3">
         {% endif %}
         <h1 class="writeup-title">{{ writeup.title }}</h1>
-        <p class="text-muted small">By {{ writeup.author.username }} in {{ writeup.category }}</p>
+        <p class="text-muted small">By {{ writeup.author.username }} &middot; {{ writeup.created_at|date:"M d, Y" }} in {{ writeup.category }}</p>
 
         {% if writeup.is_premium and not unlocked %}
             <div class="card card-premium p-4 my-3">

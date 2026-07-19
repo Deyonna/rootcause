@@ -26,6 +26,13 @@
         <label for="max_coins" class="form-label small text-muted">Max coins</label>
         <input type="number" id="max_coins" name="max_coins" class="form-control" value="{{ max_coins }}">
     </div>
+    <div class="col-6 col-md-2">
+        <label for="sort" class="form-label small text-muted">Sort by</label>
+        <select id="sort" name="sort" class="form-select">
+            <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Most recent</option>
+            <option value="alphabetical" {% if sort == 'alphabetical' %}selected{% endif %}>Alphabetical</option>
+        </select>
+    </div>
     <div class="col-12 col-md-1 d-grid">
         <button type="submit" class="btn btn-accent">Go</button>
     </div>
@@ -58,7 +65,7 @@
                     <h2 class="h5">
                         <a href="{% url 'writeup_detail' w.pk %}" class="stretched-link text-reset text-decoration-none">{{ w.title }}</a>
                     </h2>
-                    <p class="small text-muted mb-3">By {{ w.author.username }} in {{ w.category }}</p>
+                    <p class="small text-muted mb-3">By {{ w.author.username }} &middot; {{ w.created_at|date:"M d, Y" }} in {{ w.category }}</p>
                 </div>
             </div>
         </div>

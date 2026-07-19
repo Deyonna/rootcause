@@ -34,6 +34,12 @@ class Category(models.Model):
         add_children(None, 0)
         return ordered
 
+    def get_descendant_ids(self):
+        ids = [self.pk]
+        for child in self.subcategories.all():
+            ids.extend(child.get_descendant_ids())
+        return ids
+
 
 class WriteUp(models.Model):
     title = models.CharField(max_length=200)

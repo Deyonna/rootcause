@@ -33,7 +33,7 @@
                     <span class="star" data-score="4" role="button" tabindex="0" aria-label="Rate 4 stars">☆</span>
                     <span class="star" data-score="5" role="button" tabindex="0" aria-label="Rate 5 stars">☆</span>
                 </p>
-                <p id="rating-summary" class="small text-muted mb-0">Average: - ({{ writeup.ratings.count }} ratings)</p>
+                <p id="rating-summary" class="small text-muted mb-0">Average: {% if avg_rating %}{{ avg_rating|floatformat:1 }}{% else %}-{% endif %} ({{ writeup.ratings.count }} ratings)</p>
             </div>
 
             <h2 class="h5 mt-4">Comments</h2>

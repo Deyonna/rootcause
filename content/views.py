@@ -75,10 +75,11 @@ def writeup_detail(request, pk):
     comments = writeup.comments.all()
     comment_form = CommentForm()
     unlocked = has_access(request.user, writeup)
+    avg_rating = writeup.ratings.aggregate(models.Avg('score'))['score__avg']
 
     if writeup.is_premium and not unlocked:
         context = {'writeup': writeup, 'unlocked': unlocked, 'recommended': recommended,
-                   'comments': comments, 'comment_form': comment_form}
+                   'comments': comments, 'comment_form': comment_form, 'avg_rating': avg_rating}
         return render(request, 'content/writeup_detail.html', context)
 
     _, created = ReadLog.objects.get_or_create(user=request.user, writeup=writeup)
@@ -87,7 +88,7 @@ def writeup_detail(request, pk):
         profile.save()
 
     context = {'writeup': writeup, 'unlocked': unlocked, 'recommended': recommended,
-               'comments': comments, 'comment_form': comment_form}
+               'comments': comments, 'comment_form': comment_form, 'avg_rating': avg_rating}
     return render(request, 'content/writeup_detail.html', context)
 
 @login_required

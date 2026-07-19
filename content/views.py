@@ -91,6 +91,7 @@ def writeup_detail(request, pk):
     return render(request, 'content/writeup_detail.html', context)
 
 @login_required
+@require_POST
 def writeup_unlock(request, pk):
     writeup = get_object_or_404(WriteUp, pk=pk, is_premium=True)
     profile = request.user.profile
@@ -98,16 +99,13 @@ def writeup_unlock(request, pk):
     if has_access(request.user, writeup):
         return redirect('writeup_detail', pk=pk)
 
-    if request.method == 'POST':
-        if profile.coins >= writeup.coin_cost:
-            profile.coins -= writeup.coin_cost
-            profile.save()
-            Unlock.objects.create(user=request.user, writeup=writeup)
-            messages.success(request, f'Unlocked "{writeup.title}"!')
-        else:
-            messages.error(request, 'Not enough coins to unlock this.')
-        return redirect('writeup_detail', pk=pk)
-
+    if profile.coins >= writeup.coin_cost:
+        profile.coins -= writeup.coin_cost
+        profile.save()
+        Unlock.objects.create(user=request.user, writeup=writeup)
+        messages.success(request, f'Unlocked "{writeup.title}"!')
+    else:
+        messages.error(request, 'Not enough coins to unlock this.')
     return redirect('writeup_detail', pk=pk)
 
 @login_required

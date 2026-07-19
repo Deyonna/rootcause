@@ -26,7 +26,7 @@ class Category(models.Model):
         def add_children(parent_id, depth):
             for cat in children_by_parent.get(parent_id, []):
                 cat.depth = depth
-                indent = '  ' * depth
+                indent = '  ' * depth
                 prefix = '- ' if depth else ''
                 cat.display_name = indent + prefix + cat.name
                 ordered.append(cat)

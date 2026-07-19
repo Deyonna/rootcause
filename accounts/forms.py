@@ -26,6 +26,13 @@ class UserUpdateForm(BootstrapFormMixin, forms.ModelForm):
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        # exclude self so a user can save other profile changes without tripping over their own email
+        if User.objects.filter(email__iexact=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError('An account with this email already exists.')
+        return email
+
 
 class ProfileUpdateForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:

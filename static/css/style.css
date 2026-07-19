@@ -48,6 +48,7 @@ img { max-width: 100%; height: auto; }
 .card-premium { border-color: var(--burnt); background-color: var(--card-alt); }
 .badge-premium { background-color: var(--burnt); color: #fff; }
 .badge-free { background-color: #3a3a3d; color: var(--muted); }
+.badge-danger { background-color: #5a1f1f; color: #fff; }
 
 .star { cursor: pointer; font-size: 1.4rem; color: var(--orange); }
 

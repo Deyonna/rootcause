@@ -33,6 +33,8 @@ class WriteUpForm(BootstrapFormMixin, forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         if not cleaned_data.get('is_premium'):
+            # server-side backstop for premium-toggle.js: forces coin_cost to 0 whenever
+            # is_premium is off so a free writeup can never carry a lingering cost
             cleaned_data['coin_cost'] = 0
         return cleaned_data
 

@@ -5,6 +5,7 @@
 
 <div class="card p-3">
     {% for app in applications %}
+        {# skip the divider under the last row so the card doesn't end with a trailing rule #}
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 {% if not forloop.last %}border-bottom pb-3 mb-3{% endif %}">
             <div>
                 <strong>{{ app.user.username }}</strong>
@@ -14,6 +15,7 @@
             <div class="d-flex align-items-center gap-2">
                 <a href="{% url 'admin_application_detail' app.pk %}" class="btn btn-sm btn-outline-light">View full</a>
                 {% if app.status == 'pending' %}
+                    {# each button posts to the same review view, with the target status embedded into the URL #}
                     <form method="post" action="{% url 'admin_review_application' app.pk 'approved' %}">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-sm btn-accent">Approve</button>
@@ -25,7 +27,7 @@
                 {% elif app.status == 'approved' %}
                     <span class="badge badge-premium">Approved</span>
                 {% else %}
-                    <span class="badge" style="background-color:#5a1f1f;color:#fff;">Rejected</span>
+                    <span class="badge badge-danger">Rejected</span>
                 {% endif %}
             </div>
         </div>

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
+    # deleting a parent category doesn't delete its children - they become top-level categories
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='subcategories')
 
     class Meta:
@@ -25,7 +26,7 @@ class Category(models.Model):
         def add_children(parent_id, depth):
             for cat in children_by_parent.get(parent_id, []):
                 cat.depth = depth
-                indent = '    ' * depth
+                indent = '  ' * depth
                 prefix = '- ' if depth else ''
                 cat.display_name = indent + prefix + cat.name
                 ordered.append(cat)
@@ -34,16 +35,22 @@ class Category(models.Model):
         add_children(None, 0)
         return ordered
 
-    def get_descendant_ids(self):
+    def get_descendant_ids(self, _seen=None):
+        if _seen is None:
+            _seen = set()
+        if self.pk in _seen:
+            return []
+        _seen.add(self.pk)
         ids = [self.pk]
         for child in self.subcategories.all():
-            ids.extend(child.get_descendant_ids())
+            ids.extend(child.get_descendant_ids(_seen))
         return ids
 
 
 class WriteUp(models.Model):
     title = models.CharField(max_length=200)
     body = models.TextField(max_length=40000)
+    # SET_NULL, not CASCADE: deleting a category orphans its writeups instead of deleting them
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='writeups')
     image = models.ImageField(upload_to='writeups/', blank=True, null=True)

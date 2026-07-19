@@ -9,6 +9,14 @@ class CategoryForm(BootstrapFormMixin, forms.ModelForm):
         model = Category
         fields = ['name', 'parent']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            # a category can't be parented to itself or one of its own descendants,
+            # or get_descendant_ids()/sort_hierarchically() would recurse in a cycle
+            excluded_ids = self.instance.get_descendant_ids()
+            self.fields['parent'].queryset = Category.objects.exclude(pk__in=excluded_ids)
+
 
 class SubscriptionPlanForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:

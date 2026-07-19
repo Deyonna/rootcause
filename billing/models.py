@@ -17,6 +17,7 @@ class Subscription(models.Model):
     plan = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE)
     started_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
+    # SET_NULL so deleting the gifter's account doesn't take away the recipient's subscription.
     gifted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='gifts_sent')
 
     def is_active(self):

@@ -61,6 +61,9 @@ def admin_user_detail(request, pk):
 @require_POST
 def admin_user_toggle_role(request, pk):
     user = get_object_or_404(User, pk=pk)
+    if user.is_superuser:
+        messages.error(request, "You can't change a superuser's role.")
+        return redirect('admin_user_detail', pk=pk)
     profile = user.profile
     profile.role = 'reader' if profile.role == 'author' else 'author'
     profile.save()
@@ -235,6 +238,7 @@ def admin_application_detail(request, pk):
 @admin_required
 @require_POST
 def admin_review_application(request, pk, decision):
+    # status='pending' in the lookup guards against re-processing an already-decided application on a duplicate/stale POST
     application = get_object_or_404(AuthorApplication, pk=pk, status='pending')
     if decision not in ('approved', 'rejected'):
         messages.error(request, 'Invalid decision.')

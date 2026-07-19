@@ -67,6 +67,7 @@ def writeup_detail(request, pk):
     writeup = get_object_or_404(WriteUp, pk=pk)
     profile = request.user.profile
     if writeup.category:
+        # climb to the parent category first so recommendations include sibling subcategories, not just the same category
         recommend_from = writeup.category.parent or writeup.category
         recommended = WriteUp.objects.filter(category_id__in=recommend_from.get_descendant_ids()).exclude(pk=writeup.pk)[:4]
     else:
@@ -95,10 +96,6 @@ def writeup_unlock(request, pk):
     profile = request.user.profile
 
     if has_access(request.user, writeup):
-        return redirect('writeup_detail', pk=pk)
-
-    already_unlocked = Unlock.objects.filter(user=request.user, writeup=writeup).exists()
-    if already_unlocked:
         return redirect('writeup_detail', pk=pk)
 
     if request.method == 'POST':
@@ -220,6 +217,7 @@ def checkout(request):
                 continue
         else:
             recipient = request.user
+            # this guard only applies to self-purchases.
             if Subscription.objects.filter(user=recipient, expires_at__gte=timezone.now()).exists():
                 skipped_titles.append(f"{plan.name} (you already have an active subscription)")
                 continue

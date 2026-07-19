@@ -206,6 +206,9 @@ def checkout(request):
                 continue
         else:
             recipient = request.user
+            if Subscription.objects.filter(user=recipient, expires_at__gte=timezone.now()).exists():
+                skipped_titles.append(f"{plan.name} (you already have an active subscription)")
+                continue
 
         # simulated payment: it works as if the payment was successful.
         Subscription.objects.create(

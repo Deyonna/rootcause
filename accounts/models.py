@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 class Profile(models.Model):
     ROLE_CHOICES = [
@@ -16,6 +17,11 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} ({self.role})"
+
+    @property
+    def has_active_subscription(self):
+        from billing.models import Subscription
+        return Subscription.objects.filter(user=self.user, expires_at__gte=timezone.now()).exists()
 
 
 class AuthorApplication(models.Model):

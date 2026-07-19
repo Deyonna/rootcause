@@ -20,6 +20,13 @@
         <div class="col-auto"><span class="badge badge-free">Coins: {{ profile.coins }}</span></div>
         <div class="col-auto"><span class="badge badge-free">Free reads: {{ free_count }}</span></div>
         <div class="col-auto"><span class="badge badge-free">Unlocked: {{ unlocked_count }}</span></div>
+        <div class="col-auto">
+            {% if profile.has_active_subscription %}
+                <span class="badge badge-premium">Active subscription</span>
+            {% else %}
+                <span class="badge badge-free">No active subscription</span>
+            {% endif %}
+        </div>
     </div>
 
     <div class="mt-3 d-flex gap-3 flex-wrap">

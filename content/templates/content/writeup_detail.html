@@ -8,7 +8,7 @@
         {% if writeup.image %}
             <img src="{{ writeup.image.url }}" alt="" class="writeup-hero mb-3">
         {% else %}
-            <img src="{% static 'img/writeup-default.svg' %}" alt="" class="writeup-hero mb-3">
+            <img src="{% static 'img/writeup-default.svg' %}" alt="" class="writeup-hero writeup-img-default mb-3">
         {% endif %}
         <h1 class="h3">{{ writeup.title }}</h1>
         <p class="text-muted small">By {{ writeup.author.username }} in {{ writeup.category }}</p>

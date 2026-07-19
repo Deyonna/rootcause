@@ -9,7 +9,7 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% for field in form %}
-                    <div class="mb-3">
+                    <div class="mb-3" {% if field.name == 'coin_cost' %}id="coin-cost-wrapper"{% endif %}>
                         {% if field.name == 'is_premium' %}
                             <div class="form-check">
                                 {{ field }}
@@ -54,4 +54,5 @@
 
 {% block extra_js %}
 <script src="{% static 'js/markdown-toolbar.js' %}" defer></script>
+<script src="{% static 'js/premium-toggle.js' %}" defer></script>
 {% endblock %}

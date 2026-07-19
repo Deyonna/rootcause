@@ -30,6 +30,12 @@ class WriteUpForm(BootstrapFormMixin, forms.ModelForm):
             self.fields['category'].queryset = Category.objects.filter(pk__in=pk_order).order_by(preserved_order)
         self.fields['category'].label_from_instance = lambda cat: display_names.get(cat.pk, cat.name)
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if not cleaned_data.get('is_premium'):
+            cleaned_data['coin_cost'] = 0
+        return cleaned_data
+
 
 class ContactForm(BootstrapFormMixin, forms.ModelForm):
     # Honeypot: real users never see or fill this field (hidden off-screen in the template) bots that auto-fill every input will, so a non-empty value here marks the submission as spam.

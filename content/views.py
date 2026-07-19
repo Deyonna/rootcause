@@ -66,7 +66,11 @@ def writeup_list(request):
 def writeup_detail(request, pk):
     writeup = get_object_or_404(WriteUp, pk=pk)
     profile = request.user.profile
-    recommended = WriteUp.objects.filter(category=writeup.category).exclude(pk=writeup.pk)[:4]
+    if writeup.category:
+        recommend_from = writeup.category.parent or writeup.category
+        recommended = WriteUp.objects.filter(category_id__in=recommend_from.get_descendant_ids()).exclude(pk=writeup.pk)[:4]
+    else:
+        recommended = WriteUp.objects.none()
     comments = writeup.comments.all()
     comment_form = CommentForm()
     unlocked = has_access(request.user, writeup)

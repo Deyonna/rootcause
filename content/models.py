@@ -12,6 +12,28 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    @staticmethod
+    def sort_hierarchically(categories):
+        children_by_parent = {}
+        for cat in categories:
+            children_by_parent.setdefault(cat.parent_id, []).append(cat)
+        for group in children_by_parent.values():
+            group.sort(key=lambda c: c.name.lower())
+
+        ordered = []
+
+        def add_children(parent_id, depth):
+            for cat in children_by_parent.get(parent_id, []):
+                cat.depth = depth
+                indent = '    ' * depth
+                prefix = '- ' if depth else ''
+                cat.display_name = indent + prefix + cat.name
+                ordered.append(cat)
+                add_children(cat.pk, depth + 1)
+
+        add_children(None, 0)
+        return ordered
+
 
 class WriteUp(models.Model):
     title = models.CharField(max_length=200)

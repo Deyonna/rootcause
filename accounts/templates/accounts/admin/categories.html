@@ -19,7 +19,7 @@
                     <tbody>
                         {% for cat in categories %}
                             <tr>
-                                <td>{{ cat.name }}</td>
+                                <td>{{ cat.display_name }}</td>
                                 <td>{{ cat.parent|default:"-" }}</td>
                                 <td>{{ cat.writeup_count }}</td>
                                 <td class="text-end">

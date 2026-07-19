@@ -132,7 +132,9 @@ def admin_writeup_delete(request, pk):
 
 @admin_required
 def admin_categories(request):
-    categories = Category.objects.select_related('parent').annotate(writeup_count=Count('writeup', distinct=True)).order_by('name')
+    categories = Category.sort_hierarchically(
+        Category.objects.select_related('parent').annotate(writeup_count=Count('writeup', distinct=True))
+    )
     if request.method == 'POST':
         form = CategoryForm(request.POST)
         if form.is_valid():

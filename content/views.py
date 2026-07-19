@@ -39,7 +39,7 @@ def writeup_list(request):
     if premium_only == 'on':
         writeups = writeups.filter(is_premium=True)
 
-    categories = Category.objects.all()
+    categories = Category.sort_hierarchically(Category.objects.all())
 
     context = {
         'writeups': writeups,

@@ -1,6 +1,7 @@
 from django import forms
+from django.db.models import Case, When
 from core.mixins import BootstrapFormMixin
-from .models import Comment, WriteUp, ContactMessage
+from .models import Category, Comment, WriteUp, ContactMessage
 
 class CommentForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
@@ -18,6 +19,16 @@ class WriteUpForm(BootstrapFormMixin, forms.ModelForm):
         widgets = {
             'body': forms.Textarea(attrs={'rows': 15, 'id': 'id_body'})
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        ordered = Category.sort_hierarchically(Category.objects.select_related('parent'))
+        display_names = {cat.pk: cat.display_name for cat in ordered}
+        pk_order = list(display_names.keys())
+        if pk_order:
+            preserved_order = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_order)])
+            self.fields['category'].queryset = Category.objects.filter(pk__in=pk_order).order_by(preserved_order)
+        self.fields['category'].label_from_instance = lambda cat: display_names.get(cat.pk, cat.name)
 
 
 class ContactForm(BootstrapFormMixin, forms.ModelForm):

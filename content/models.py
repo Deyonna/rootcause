@@ -37,7 +37,7 @@ class Category(models.Model):
 
 class WriteUp(models.Model):
     title = models.CharField(max_length=200)
-    body = models.TextField(max_length=20000)
+    body = models.TextField(max_length=40000)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='writeups')
     image = models.ImageField(upload_to='writeups/', blank=True, null=True)

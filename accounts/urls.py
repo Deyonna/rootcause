@@ -33,6 +33,7 @@ urlpatterns = [
     path('admin/subscriptions/', admin_views.admin_subscriptions, name='admin_subscriptions'),
 
     path('admin/applications/', admin_views.admin_applications, name='admin_applications'),
+    path('admin/applications/<int:pk>/', admin_views.admin_application_detail, name='admin_application_detail'),
     path('admin/applications/<int:pk>/<str:decision>/', admin_views.admin_review_application, name='admin_review_application'),
 
     path('admin/messages/', admin_views.admin_messages, name='admin_messages'),

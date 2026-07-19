@@ -1,0 +1,31 @@
+{% extends 'accounts/admin/base.html' %}
+{% block title %}{{ application.user.username }}'s Application - Admin - /cause{% endblock %}
+{% block admin_content %}
+<a href="{% url 'admin_applications' %}" class="btn btn-sm btn-outline-light mb-3">&larr; Back to applications</a>
+
+<div class="card p-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+        <div>
+            <strong>{{ application.user.username }}</strong>
+            <span class="text-muted small d-block">Submitted {{ application.submitted_at|date:"M d, Y" }}</span>
+        </div>
+        {% if application.status == 'pending' %}
+            <div class="d-flex align-items-center gap-2">
+                <form method="post" action="{% url 'admin_review_application' application.pk 'approved' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-accent">Approve</button>
+                </form>
+                <form method="post" action="{% url 'admin_review_application' application.pk 'rejected' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                </form>
+            </div>
+        {% elif application.status == 'approved' %}
+            <span class="badge badge-premium">Approved</span>
+        {% else %}
+            <span class="badge" style="background-color:#5a1f1f;color:#fff;">Rejected</span>
+        {% endif %}
+    </div>
+    <p class="text-break" style="white-space: pre-wrap;">{{ application.sample_text }}</p>
+</div>
+{% endblock %}

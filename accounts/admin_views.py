@@ -225,6 +225,12 @@ def admin_applications(request):
 
 
 @admin_required
+def admin_application_detail(request, pk):
+    application = get_object_or_404(AuthorApplication.objects.select_related('user'), pk=pk)
+    return render(request, 'accounts/admin/application_detail.html', _ctx('applications', application=application))
+
+
+@admin_required
 @require_POST
 def admin_review_application(request, pk, decision):
     application = get_object_or_404(AuthorApplication, pk=pk, status='pending')
